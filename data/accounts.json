@@ -1,0 +1,14 @@
+{
+  "accounts": [
+    {
+      "username": "test",
+      "email": "test@example.com",
+      "passwordHash": "scrypt:32768:8:1$fe2h16jb1lQasCit$775b8f198ed728f07e071910bfc36150faea5252a24afcee9cdd73e6302b33f3561a1a4f1c2d80a3484f14d389e0da96e15ea8aac416d5f7232380e7e0359e28"
+    },
+    {
+      "username": "tester",
+      "email": "tester@example.com",
+      "passwordHash": "scrypt:32768:8:1$u0vamvKZpXLpqc6n$82f9d5dd5856bf7d3cba540ebb7261f64b24b94e3d8a070a6a9d6fd2f161d3d2bff2546d02a5db0005af8d28d71cd98d05bac42e2f00e1df17d54624b5e5c85e"
+    }
+  ]
+}

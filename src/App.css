@@ -1,8 +1,155 @@
+.app-header {
+  width: min(980px, 100%);
+  margin: 0 auto;
+  padding: 20px 20px 0;
+  box-sizing: border-box;
+}
+
+.app-header-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+}
+
+.auth-user-pill {
+  margin: 0;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 14px;
+  color: var(--text-h);
+  background: var(--bg);
+}
+
+.auth-entry-button {
+  border: 1px solid var(--accent-border);
+  background: var(--accent-bg);
+  color: var(--accent);
+  border-radius: 999px;
+  padding: 9px 14px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.auth-entry-button:hover {
+  border-color: var(--accent);
+}
+
+.auth-entry-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 .app-shell {
   width: min(980px, 100%);
   margin: 0 auto;
-  padding: 32px 20px 72px;
+  padding: 20px 20px 72px;
   box-sizing: border-box;
+}
+
+.auth-page {
+  display: flex;
+  justify-content: center;
+}
+
+.auth-card {
+  width: min(560px, 100%);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--bg) 95%, var(--code-bg));
+  padding: 24px;
+  text-align: left;
+  box-shadow: var(--shadow);
+}
+
+.auth-header h1 {
+  margin: 0;
+  font-size: 40px;
+}
+
+.auth-header p {
+  margin-top: 12px;
+}
+
+.auth-mode-toggle {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.auth-mode-button {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 10px 12px;
+  background: var(--bg);
+  color: var(--text-h);
+  font: inherit;
+  cursor: pointer;
+}
+
+.auth-mode-button.is-active {
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.auth-mode-button:focus-visible,
+.auth-secondary-button:focus-visible,
+.auth-import-label:focus-visible,
+.auth-submit-button:focus-visible,
+.auth-form input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.auth-form {
+  margin-top: 18px;
+  display: grid;
+  gap: 8px;
+}
+
+.auth-form label {
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.auth-form input {
+  font: inherit;
+  color: var(--text-h);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  box-sizing: border-box;
+}
+
+.auth-submit-button {
+  margin-top: 8px;
+  border: 1px solid var(--accent-border);
+  border-radius: 12px;
+  padding: 11px 14px;
+  background: var(--accent-bg);
+  color: var(--accent);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.auth-feedback {
+  margin-top: 14px;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 14px;
+}
+
+.auth-feedback.is-error {
+  border: 1px solid rgba(220, 38, 38, 0.4);
+  color: #b91c1c;
+  background: rgba(248, 113, 113, 0.1);
 }
 
 .post-feed {
@@ -218,8 +365,20 @@
 }
 
 @media (max-width: 700px) {
+  .app-header {
+    padding-top: 14px;
+  }
+
+  .auth-card {
+    padding: 18px;
+  }
+
+  .auth-header h1 {
+    font-size: 32px;
+  }
+
   .app-shell {
-    padding-top: 24px;
+    padding-top: 16px;
     padding-bottom: 48px;
   }
 
