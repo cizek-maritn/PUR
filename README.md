@@ -17,7 +17,7 @@ If you are developing a production application, we recommend using TypeScript wi
 
 ## Authentication Backend
 
-This project uses a simple Python backend for registration and login:
+This project uses a simple FastAPI backend for registration and login:
 
 - Register endpoint saves new accounts to a persistent JSON file at `data/accounts.json`.
 - Login endpoint reads `data/accounts.json` and validates credentials against saved accounts.
@@ -30,7 +30,7 @@ From project root:
 ```bash
 cd backend
 python -m venv .venv
-soruce .venv/Scripts/activate
+source .venv/Scripts/activate
 pip install -r requirements.txt
 python app.py
 ```
