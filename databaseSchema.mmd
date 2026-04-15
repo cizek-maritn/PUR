@@ -1,0 +1,40 @@
+erDiagram
+   BlogPost {
+        string id PK
+        datetime created
+        string title
+        string content
+        User author FK
+    } 
+    User {
+        string name PK
+        string email
+        string passwordHash
+    }
+    Comment {
+        string id PK
+        string content
+        datetime created 
+        User author FK
+        BlogPost post FK
+        Comment parentComment FK "NULLABLE"
+    }
+    Rating {
+        int score
+        User author PK, FK
+        BlogPost post PK, FK
+    }
+    Like {
+        User user PK, FK
+        Comment comment PK, FK
+    }
+
+
+    User ||--o{ BlogPost : ""
+    User ||--o{ Comment : ""
+    User ||--o{ Rating : ""
+    User ||--o{ Like : ""
+    Comment ||--o{ Like : ""
+    BlogPost ||--o{ Rating : ""
+    BlogPost ||--o{ Comment : ""
+    Comment ||--o{ Comment : ""
