@@ -1,3 +1,5 @@
+import { buildApiUrl } from './api'
+
 const SESSION_KEY = 'pc_session_user'
 
 function safeParseJSON(value, fallback) {
@@ -30,7 +32,7 @@ function setSessionUser(user) {
 
 async function postAuth(path, payload) {
   try {
-    const response = await fetch(path, {
+    const response = await fetch(buildApiUrl(path), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import AuthPanel from './components/AuthPanel'
 import BlogPostList from './components/BlogPostList'
+import { buildApiUrl } from './utils/api'
 import { clearSessionUser, getSessionUser } from './utils/authStorage'
 import './App.css'
 
@@ -13,7 +14,7 @@ function App() {
   }
 
   function handleLogout() {
-    fetch('/api/auth/logout', { method: 'POST' }).catch(() => {
+    fetch(buildApiUrl('/api/auth/logout'), { method: 'POST' }).catch(() => {
       // Keep local logout behavior even if backend is unavailable.
     })
 

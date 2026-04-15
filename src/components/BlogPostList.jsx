@@ -1,18 +1,56 @@
-import { useMemo, useState } from 'react'
-import { blogPosts } from '../data/blogPosts'
+import { useEffect, useMemo, useState } from 'react'
 import { filterAndRankPosts, getAvailableTags } from '../utils/blogSearch'
+import { buildApiUrl } from '../utils/api'
 import BlogPostSnippet from './BlogPostSnippet'
 
 function BlogPostList() {
+  const [posts, setPosts] = useState([])
   const [query, setQuery] = useState('')
   const [selectedTags, setSelectedTags] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
+
+  useEffect(() => {
+    const controller = new AbortController()
+
+    async function loadPosts() {
+      setIsLoading(true)
+      setLoadError('')
+
+      try {
+        const response = await fetch(buildApiUrl('/api/posts'), {
+          signal: controller.signal,
+        })
+        const parsed = await response.json().catch(() => ({}))
+
+        if (!response.ok) {
+          throw new Error(typeof parsed?.message === 'string' ? parsed.message : 'Unable to load posts.')
+        }
+
+        setPosts(Array.isArray(parsed?.posts) ? parsed.posts : [])
+      } catch (error) {
+        if (error?.name === 'AbortError') {
+          return
+        }
+
+        setLoadError(error instanceof Error ? error.message : 'Unable to load posts.')
+        setPosts([])
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadPosts()
+
+    return () => controller.abort()
+  }, [])
 
   const filteredPosts = useMemo(
-    () => filterAndRankPosts(blogPosts, query, selectedTags),
-    [query, selectedTags],
+    () => filterAndRankPosts(posts, query, selectedTags),
+    [posts, query, selectedTags],
   )
 
-  const availableTags = useMemo(() => getAvailableTags(blogPosts), [])
+  const availableTags = useMemo(() => getAvailableTags(posts), [posts])
 
   function handleTagChange(event) {
     const { checked, value } = event.target
@@ -83,20 +121,32 @@ function BlogPostList() {
       ) : null}
 
       <p className="results-count">
-        Showing {filteredPosts.length} of {blogPosts.length} posts
+        {isLoading
+          ? 'Loading posts from the database...'
+          : `Showing ${filteredPosts.length} of ${posts.length} posts`}
       </p>
 
-      {filteredPosts.length ? (
+      {loadError ? (
+        <p className="empty-state" role="alert">
+          {loadError}
+        </p>
+      ) : null}
+
+      {!isLoading && !loadError && filteredPosts.length ? (
         <div className="post-list">
           {filteredPosts.map((post) => (
             <BlogPostSnippet key={post.id} post={post} />
           ))}
         </div>
-      ) : (
+      ) : !isLoading && !loadError ? (
         <p className="empty-state">
           No posts match that search yet. Try a different title word or clear some tags.
         </p>
-      )}
+      ) : null}
+
+      {isLoading && !loadError ? (
+        <p className="empty-state">Loading demo posts from PostgreSQL...</p>
+      ) : null}
     </section>
   )
 }

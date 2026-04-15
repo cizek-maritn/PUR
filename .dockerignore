@@ -1,0 +1,8 @@
+node_modules
+dist
+.git
+.venv
+backend/.venv
+backend/__pycache__
+src/**/__pycache__
+data/accounts.json

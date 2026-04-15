@@ -15,29 +15,48 @@ The React Compiler is not enabled on this template because of its impact on dev 
 
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
 
-## Authentication Backend
+## PostgreSQL Backend
 
-This project uses a simple FastAPI backend for registration and login:
+The app now uses PostgreSQL for auth and blog content instead of the old JSON file store.
 
-- Register endpoint saves new accounts to a persistent JSON file at `data/accounts.json`.
-- Login endpoint reads `data/accounts.json` and validates credentials against saved accounts.
-- Frontend keeps only the current session user in localStorage.
+- Users, blog posts, comments, ratings, and comment likes are backed by PostgreSQL tables.
+- The backend seeds demo blog posts and sample interaction rows on first run so the feed is not empty.
+- Frontend auth still stores only the current session user in localStorage.
 
-### Run Backend
+### Run With Docker Compose
 
-From project root:
+From the project root:
+
+```bash
+docker compose up --build
+```
+
+This starts:
+
+- PostgreSQL on `localhost:5432`
+- FastAPI backend on `http://localhost:5000`
+- Frontend preview server on `http://localhost:4173`
+
+### Run Backend Locally
+
+Set `DATABASE_URL` to a PostgreSQL instance, then run the backend from the `backend` folder:
 
 ```bash
 cd backend
 python -m venv .venv
-source .venv/Scripts/activate
+.venv\Scripts\activate
 pip install -r requirements.txt
 python app.py
 ```
 
-The backend runs on `http://127.0.0.1:5000`.
+Environment variables:
 
-### Run Frontend
+- `DATABASE_URL` - PostgreSQL connection string
+- `HOST` - backend bind host, defaults to `127.0.0.1`
+- `PORT` - backend port, defaults to `5000`
+- `SEED_DEMO_DATA` - set to `false` to skip seeding demo content
+
+### Run Frontend Locally
 
 In a separate terminal from project root:
 
@@ -46,9 +65,10 @@ npm install
 npm run dev
 ```
 
-Vite proxies `/api` requests to the backend during development.
+The Vite dev server still proxies `/api` requests to the backend on `127.0.0.1:5000`.
 
 ### Notes
 
-- Passwords are hashed server-side before writing to `data/accounts.json`.
+- Passwords are hashed server-side before storing them in PostgreSQL.
+- Existing JSON data is not migrated.
 - No 2FA or social login is implemented.

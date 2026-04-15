@@ -24,7 +24,7 @@ function BlogPostSnippet({ post }) {
 
       <footer className="post-footer">
         <p className="post-engagement">
-          <span>{post.likesCount} likes</span>
+          <span>⭐ {post.averageRating}/5 ({post.ratingCount})</span>
           <span>{post.commentsCount} comments</span>
         </p>
         <ul className="post-tags" aria-label="Post tags">
