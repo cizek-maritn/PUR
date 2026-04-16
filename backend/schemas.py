@@ -17,3 +17,11 @@ class AuthLoginRequest(BaseModel):
 
     email: str
     password: str
+
+
+class BlogPostCreateRequest(BaseModel):
+    model_config = ConfigDict(extra='ignore')
+
+    title: str = Field(min_length=1, max_length=255)
+    content: str = Field(min_length=1)
+    tags: list[str] = Field(default_factory=list)

@@ -9,6 +9,8 @@ function formatPostDate(dateValue) {
 }
 
 function BlogPostSnippet({ post }) {
+  const excerpt = typeof post.excerpt === 'string' && post.excerpt.trim() ? post.excerpt : post.content
+
   return (
     <article className="post-snippet" aria-label={`Post: ${post.title}`}>
       <header className="post-header">
@@ -20,7 +22,7 @@ function BlogPostSnippet({ post }) {
         </p>
       </header>
 
-      <p className="post-excerpt">{post.content}</p>
+      <p className="post-excerpt">{excerpt}</p>
 
       <footer className="post-footer">
         <p className="post-engagement">

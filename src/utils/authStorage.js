@@ -1,6 +1,7 @@
 import { buildApiUrl } from './api'
 
 const SESSION_KEY = 'pc_session_user'
+const TOKEN_KEY = 'pc_session_token'
 
 function safeParseJSON(value, fallback) {
   if (!value) {
@@ -24,10 +25,20 @@ export function getSessionUser() {
 
 export function clearSessionUser() {
   localStorage.removeItem(SESSION_KEY)
+  localStorage.removeItem(TOKEN_KEY)
 }
 
 function setSessionUser(user) {
   localStorage.setItem(SESSION_KEY, JSON.stringify(user))
+}
+
+function setSessionToken(token) {
+  localStorage.setItem(TOKEN_KEY, token)
+}
+
+export function getSessionToken() {
+  const token = localStorage.getItem(TOKEN_KEY)
+  return typeof token === 'string' ? token : null
 }
 
 async function postAuth(path, payload) {
@@ -53,6 +64,7 @@ async function postAuth(path, payload) {
       ok: true,
       message: typeof parsed?.message === 'string' ? parsed.message : 'Request successful.',
       user: parsed?.user,
+      token: parsed?.token,
     }
   } catch {
     return { ok: false, message: 'Unable to reach the authentication server.' }
@@ -78,8 +90,9 @@ export async function registerAccount({ username, email, password, confirmPasswo
     confirmPassword,
   })
 
-  if (result.ok && result.user) {
+  if (result.ok && result.user && result.token) {
     setSessionUser(result.user)
+    setSessionToken(result.token)
   }
 
   return result
@@ -97,8 +110,9 @@ export async function loginAccount({ email, password }) {
     password,
   })
 
-  if (result.ok && result.user) {
+  if (result.ok && result.user && result.token) {
     setSessionUser(result.user)
+    setSessionToken(result.token)
   }
 
   return result

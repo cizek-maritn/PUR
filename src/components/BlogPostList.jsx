@@ -3,7 +3,7 @@ import { filterAndRankPosts, getAvailableTags } from '../utils/blogSearch'
 import { buildApiUrl } from '../utils/api'
 import BlogPostSnippet from './BlogPostSnippet'
 
-function BlogPostList() {
+function BlogPostList({ refreshKey = 0 }) {
   const [posts, setPosts] = useState([])
   const [query, setQuery] = useState('')
   const [selectedTags, setSelectedTags] = useState([])
@@ -43,7 +43,7 @@ function BlogPostList() {
     loadPosts()
 
     return () => controller.abort()
-  }, [])
+  }, [refreshKey])
 
   const filteredPosts = useMemo(
     () => filterAndRankPosts(posts, query, selectedTags),
