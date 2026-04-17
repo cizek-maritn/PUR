@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import html
 import os
 import re
 import time
@@ -104,7 +105,10 @@ def sanitize_post_html(content: str) -> str:
 
 
 def extract_plain_text(content: str) -> str:
-    return bleach.clean(content, tags=[], strip=True).strip()
+    plain_text = bleach.clean(content, tags=[], strip=True)
+    decoded_text = html.unescape(plain_text)
+    normalized_spaces = decoded_text.replace('\xa0', ' ')
+    return re.sub(r'\s+', ' ', normalized_spaces).strip()
 
 
 def generate_access_token(user: User) -> str:

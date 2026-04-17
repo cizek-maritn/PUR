@@ -229,6 +229,17 @@
   border-color: var(--accent-border);
 }
 
+.editor-toolbar button.is-active {
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.editor-toolbar button.is-active:hover {
+  border-color: var(--accent);
+}
+
 .editor-toolbar select {
   width: auto;
   padding: 7px 10px;

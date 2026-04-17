@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createPostRequest } from '../utils/api'
 import { getSessionToken } from '../utils/authStorage'
 
@@ -22,6 +22,15 @@ function normalizeTagInput(rawTagInput) {
   return [...new Set(chunks)]
 }
 
+function escapeHtml(rawText) {
+  return rawText
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
 function CreatePostPanel({ onCreated }) {
   const editorRef = useRef(null)
   const [title, setTitle] = useState('')
@@ -29,16 +38,72 @@ function CreatePostPanel({ onCreated }) {
   const [fontSize, setFontSize] = useState('normal')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const [formatState, setFormatState] = useState({
+    bold: false,
+    italic: false,
+    underline: false,
+  })
+
+  function updateFormatState() {
+    const editor = editorRef.current
+    const selection = window.getSelection()
+
+    if (!editor || !selection || selection.rangeCount === 0) {
+      setFormatState({ bold: false, italic: false, underline: false })
+      return
+    }
+
+    const anchorNode = selection.anchorNode
+    const focusNode = selection.focusNode
+    const isInsideEditor =
+      (anchorNode && editor.contains(anchorNode)) || (focusNode && editor.contains(focusNode))
+
+    if (!isInsideEditor) {
+      setFormatState({ bold: false, italic: false, underline: false })
+      return
+    }
+
+    setFormatState({
+      bold: document.queryCommandState('bold'),
+      italic: document.queryCommandState('italic'),
+      underline: document.queryCommandState('underline'),
+    })
+  }
+
+  useEffect(() => {
+    function handleSelectionChange() {
+      updateFormatState()
+    }
+
+    document.addEventListener('selectionchange', handleSelectionChange)
+
+    return () => {
+      document.removeEventListener('selectionchange', handleSelectionChange)
+    }
+  }, [])
 
   function runEditorCommand(command, value) {
     editorRef.current?.focus()
     document.execCommand(command, false, value)
+    updateFormatState()
   }
 
   function handleFontSizeChange(event) {
     const selectedSize = event.target.value
     setFontSize(selectedSize)
     runEditorCommand('fontSize', FONT_SIZE_TO_COMMAND[selectedSize])
+  }
+
+  function handleEditorPaste(event) {
+    event.preventDefault()
+
+    const rawText = event.clipboardData.getData('text/plain')
+    const normalizedText = rawText.replace(/\r\n?/g, '\n')
+    const safeHtml = escapeHtml(normalizedText).replace(/\n/g, '<br>')
+
+    editorRef.current?.focus()
+    document.execCommand('insertHTML', false, safeHtml)
+    updateFormatState()
   }
 
   async function handleSubmit(event) {
@@ -85,6 +150,7 @@ function CreatePostPanel({ onCreated }) {
 
     setTitle('')
     setTagsInput('')
+    setFormatState({ bold: false, italic: false, underline: false })
     if (editorRef.current) {
       editorRef.current.innerHTML = ''
     }
@@ -123,13 +189,28 @@ function CreatePostPanel({ onCreated }) {
           <p className="field-hint">Use lowercase tags with dashes, separated by commas.</p>
 
           <div className="editor-toolbar" role="toolbar" aria-label="Text formatting">
-            <button type="button" onClick={() => runEditorCommand('bold')}>
+            <button
+              type="button"
+              className={formatState.bold ? 'is-active' : ''}
+              aria-pressed={formatState.bold}
+              onClick={() => runEditorCommand('bold')}
+            >
               Bold
             </button>
-            <button type="button" onClick={() => runEditorCommand('italic')}>
+            <button
+              type="button"
+              className={formatState.italic ? 'is-active' : ''}
+              aria-pressed={formatState.italic}
+              onClick={() => runEditorCommand('italic')}
+            >
               Italic
             </button>
-            <button type="button" onClick={() => runEditorCommand('underline')}>
+            <button
+              type="button"
+              className={formatState.underline ? 'is-active' : ''}
+              aria-pressed={formatState.underline}
+              onClick={() => runEditorCommand('underline')}
+            >
               Underline
             </button>
             <label htmlFor="font-size-picker">Font size</label>
@@ -148,6 +229,12 @@ function CreatePostPanel({ onCreated }) {
             aria-multiline="true"
             suppressContentEditableWarning
             data-placeholder="Write your post content here..."
+            onInput={updateFormatState}
+            onKeyUp={updateFormatState}
+            onMouseUp={updateFormatState}
+            onFocus={updateFormatState}
+            onBlur={updateFormatState}
+            onPaste={handleEditorPaste}
           />
 
           <button className="auth-submit-button" type="submit" disabled={isSubmitting}>
