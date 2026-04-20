@@ -11,6 +11,7 @@ function BlogPostList({ refreshKey = 0 }) {
   const [loadError, setLoadError] = useState('')
   const [isTagFilterExpanded, setIsTagFilterExpanded] = useState(false)
   const [tagSearchQuery, setTagSearchQuery] = useState('')
+  const [searchMode, setSearchMode] = useState('title')
 
   useEffect(() => {
     const controller = new AbortController()
@@ -48,8 +49,8 @@ function BlogPostList({ refreshKey = 0 }) {
   }, [refreshKey])
 
   const filteredPosts = useMemo(
-    () => filterAndRankPosts(posts, query, selectedTags),
-    [posts, query, selectedTags],
+    () => filterAndRankPosts(posts, query, selectedTags, searchMode),
+    [posts, query, selectedTags, searchMode],
   )
 
   const availableTags = useMemo(() => getAvailableTags(posts), [posts])
@@ -82,16 +83,41 @@ function BlogPostList({ refreshKey = 0 }) {
       </header>
 
       <label className="search-label" htmlFor="post-search">
-        Search by title, author, or content
+        Search by {searchMode === 'title' ? 'title' : 'author'}
       </label>
-      <input
-        id="post-search"
-        className="search-input"
-        type="search"
-        value={query}
-        onChange={(event) => setQuery(event.target.value)}
-        placeholder="Try: pasta, beginner, zoe"
-      />
+      <div className="search-input-group">
+        <input
+          id="post-search"
+          className="search-input"
+          type="search"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder={searchMode === 'title' ? 'Try: pasta, beginner' : 'Try: zoe, john'}
+        />
+        <fieldset className="search-mode-toggle" aria-label="Search mode">
+          <legend className="search-mode-legend">Search by:</legend>
+          <label className="search-mode-option">
+            <input
+              type="radio"
+              name="search-mode"
+              value="title"
+              checked={searchMode === 'title'}
+              onChange={(e) => setSearchMode(e.target.value)}
+            />
+            Title
+          </label>
+          <label className="search-mode-option">
+            <input
+              type="radio"
+              name="search-mode"
+              value="author"
+              checked={searchMode === 'author'}
+              onChange={(e) => setSearchMode(e.target.value)}
+            />
+            Author
+          </label>
+        </fieldset>
+      </div>
 
       <fieldset className="tag-filter-group">
         <legend className="search-label">Filter by tags</legend>

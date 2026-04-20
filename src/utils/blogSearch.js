@@ -12,14 +12,19 @@ function sortByNewest(posts) {
   )
 }
 
-function getBestMatchBucket(post, token) {
+function getBestMatchBucket(post, token, searchMode) {
   const title = post.title.toLowerCase()
   const author = post.authorUsername.toLowerCase()
-  const content = post.content.toLowerCase()
 
-  if (title.includes(token)) return 0
-  if (author.includes(token)) return 1
-  if (content.includes(token)) return 2
+  if (searchMode === 'title') {
+    if (title.includes(token)) return 0
+    return null
+  }
+
+  if (searchMode === 'author') {
+    if (author.includes(token)) return 0
+    return null
+  }
 
   return null
 }
@@ -32,7 +37,7 @@ function matchesSelectedTags(post, selectedTags) {
   return selectedTags.every((tag) => post.tags.includes(tag))
 }
 
-export function filterAndRankPosts(posts, query, selectedTags = []) {
+export function filterAndRankPosts(posts, query, selectedTags = [], searchMode = 'title') {
   const tokens = tokenizeQuery(query)
   const filteredByTags = posts.filter((post) => matchesSelectedTags(post, selectedTags))
 
@@ -47,7 +52,7 @@ export function filterAndRankPosts(posts, query, selectedTags = []) {
       let matchedTokens = 0
 
       for (const token of tokens) {
-        const bucket = getBestMatchBucket(post, token)
+        const bucket = getBestMatchBucket(post, token, searchMode)
 
         if (bucket === null) {
           continue
