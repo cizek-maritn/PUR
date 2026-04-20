@@ -25,3 +25,10 @@ class BlogPostCreateRequest(BaseModel):
     title: str = Field(min_length=1, max_length=255)
     content: str = Field(min_length=1)
     tags: list[str] = Field(default_factory=list)
+
+
+class CommentCreateRequest(BaseModel):
+    model_config = ConfigDict(extra='ignore', populate_by_name=True)
+
+    content: str = Field(min_length=1)
+    parent_comment_id: str | None = Field(default=None, alias='parentCommentId')

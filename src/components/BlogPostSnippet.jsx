@@ -8,11 +8,25 @@ function formatPostDate(dateValue) {
   })
 }
 
-function BlogPostSnippet({ post }) {
+function BlogPostSnippet({ post, onOpenPost }) {
   const excerpt = typeof post.excerpt === 'string' && post.excerpt.trim() ? post.excerpt : post.content
 
+  function handleKeyDown(event) {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      onOpenPost()
+    }
+  }
+
   return (
-    <article className="post-snippet" aria-label={`Post: ${post.title}`}>
+    <article
+      className="post-snippet is-clickable"
+      aria-label={`Post: ${post.title}`}
+      role="button"
+      tabIndex={0}
+      onClick={onOpenPost}
+      onKeyDown={handleKeyDown}
+    >
       <header className="post-header">
         <h2>{post.title}</h2>
         <p className="post-meta">

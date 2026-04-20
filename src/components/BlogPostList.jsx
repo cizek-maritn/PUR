@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { filterAndRankPosts, getAvailableTags } from '../utils/blogSearch'
 import { buildApiUrl } from '../utils/api'
 import BlogPostSnippet from './BlogPostSnippet'
 
 function BlogPostList({ refreshKey = 0 }) {
+  const navigate = useNavigate()
   const [posts, setPosts] = useState([])
   const [query, setQuery] = useState('')
   const [selectedTags, setSelectedTags] = useState([])
@@ -204,7 +206,11 @@ function BlogPostList({ refreshKey = 0 }) {
       {!isLoading && !loadError && filteredPosts.length ? (
         <div className="post-list">
           {filteredPosts.map((post) => (
-            <BlogPostSnippet key={post.id} post={post} />
+            <BlogPostSnippet
+              key={post.id}
+              post={post}
+              onOpenPost={() => navigate(`/posts/${post.id}`)}
+            />
           ))}
         </div>
       ) : !isLoading && !loadError ? (

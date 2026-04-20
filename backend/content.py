@@ -90,7 +90,7 @@ def serialize_post(post: BlogPost) -> dict[str, Any]:
     rating_scores = [r.score for r in post.ratings if r.score]
     average_rating = round(sum(rating_scores) / len(rating_scores), 1) if rating_scores else 0
     plain_text_content = extract_plain_text(post.content)
-    excerpt = plain_text_content[:180].strip()
+    excerpt = plain_text_content[:350].strip()
 
     return {
         'id': post.id,
@@ -104,3 +104,36 @@ def serialize_post(post: BlogPost) -> dict[str, Any]:
         'commentsCount': len(post.comments),
         'tags': list(post.tags or []),
     }
+
+
+def serialize_comment(comment: Any, replies: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+    author_username = getattr(comment, 'author_username', '')
+
+    if getattr(comment, 'author', None) is not None and getattr(comment.author, 'username', None):
+        author_username = comment.author.username
+
+    likes = getattr(comment, 'likes', None)
+
+    return {
+        'id': comment.id,
+        'content': comment.content,
+        'authorUsername': author_username,
+        'createdAt': normalize_post_created_at(comment.created_at),
+        'parentCommentId': comment.parent_comment_id,
+        'likesCount': len(likes) if likes is not None else 0,
+        'replies': replies or [],
+    }
+
+
+def serialize_comment_forest(comments: list[Any]) -> list[dict[str, Any]]:
+    sorted_comments = sorted(comments, key=lambda item: item.created_at)
+    replies_by_parent: dict[str | None, list[Any]] = {}
+
+    for comment in sorted_comments:
+        replies_by_parent.setdefault(comment.parent_comment_id, []).append(comment)
+
+    def build_tree(comment: Any) -> dict[str, Any]:
+        child_nodes = replies_by_parent.get(comment.id, [])
+        return serialize_comment(comment, replies=[build_tree(child) for child in child_nodes])
+
+    return [build_tree(root_comment) for root_comment in replies_by_parent.get(None, [])]
