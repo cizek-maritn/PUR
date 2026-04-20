@@ -9,6 +9,8 @@ function BlogPostList({ refreshKey = 0 }) {
   const [selectedTags, setSelectedTags] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [loadError, setLoadError] = useState('')
+  const [isTagFilterExpanded, setIsTagFilterExpanded] = useState(false)
+  const [tagSearchQuery, setTagSearchQuery] = useState('')
 
   useEffect(() => {
     const controller = new AbortController()
@@ -52,6 +54,14 @@ function BlogPostList({ refreshKey = 0 }) {
 
   const availableTags = useMemo(() => getAvailableTags(posts), [posts])
 
+  const filteredAvailableTags = useMemo(() => {
+    if (!tagSearchQuery.trim()) {
+      return availableTags
+    }
+    const searchLower = tagSearchQuery.toLowerCase().trim()
+    return availableTags.filter((tag) => tag.toLowerCase().includes(searchLower))
+  }, [availableTags, tagSearchQuery])
+
   function handleTagChange(event) {
     const { checked, value } = event.target
 
@@ -85,20 +95,53 @@ function BlogPostList({ refreshKey = 0 }) {
 
       <fieldset className="tag-filter-group">
         <legend className="search-label">Filter by tags</legend>
-        <div className="tag-checkbox-grid" role="group" aria-label="Select one or more tags">
-          {availableTags.map((tag) => (
-            <label key={tag} className="tag-checkbox-option">
-              <input
-                type="checkbox"
-                name="tag-filter"
-                value={tag}
-                checked={selectedTags.includes(tag)}
-                onChange={handleTagChange}
-              />
-              <span>{tag}</span>
-            </label>
-          ))}
+        <div className="tag-filter-header">
+          <p className="tag-filter-summary">
+            {availableTags.length
+              ? `${availableTags.length} tags available for filtering.`
+              : 'No tags are available yet.'}
+          </p>
+          <button
+            type="button"
+            className="tag-filter-toggle"
+            onClick={() => setIsTagFilterExpanded((current) => !current)}
+            aria-expanded={isTagFilterExpanded}
+            aria-controls="tag-checkbox-panel"
+            disabled={!availableTags.length}
+          >
+            {isTagFilterExpanded ? 'Hide tags' : 'Show tags'}
+          </button>
         </div>
+        {isTagFilterExpanded ? (
+          <div id="tag-checkbox-panel" className="tag-checkbox-panel">
+            <input
+              type="search"
+              className="tag-search-input"
+              placeholder="Search tags..."
+              value={tagSearchQuery}
+              onChange={(event) => setTagSearchQuery(event.target.value)}
+              aria-label="Search available tags"
+            />
+            <div className="tag-checkbox-grid" role="group" aria-label="Select one or more tags">
+              {filteredAvailableTags.length ? (
+                filteredAvailableTags.map((tag) => (
+                  <label key={tag} className="tag-checkbox-option">
+                    <input
+                      type="checkbox"
+                      name="tag-filter"
+                      value={tag}
+                      checked={selectedTags.includes(tag)}
+                      onChange={handleTagChange}
+                    />
+                    <span>{tag}</span>
+                  </label>
+                ))
+              ) : (
+                <p className="no-tags-match">No tags match your search.</p>
+              )}
+            </div>
+          </div>
+        ) : null}
       </fieldset>
 
       <div className="filter-actions">
